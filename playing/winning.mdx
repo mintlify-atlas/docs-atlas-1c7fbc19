@@ -37,7 +37,7 @@ function getRandomInt() {
     - **$300–$499** — rare enough to feel notable; also the threshold that triggers the confetti celebration.
     - **$500–$799** — uncommon; requires a raw roll above approximately 0.89.
     - **$800–$999** — very rare; requires a raw roll above approximately 0.94.
-    - **$1,000** — the maximum prize; requires `Math.random()` to return exactly 1, which is vanishingly unlikely in IEEE 754 floating-point arithmetic.
+    - **$1,000** — the maximum prize; requires `Math.random()` to produce a value close enough to 1 that after raising to the 5th power the scaled result rounds to 1000. Since `Math.random()` never returns exactly 1, this is vanishingly rare but theoretically reachable.
 
     The confetti animation (see below) serves as a built-in signal for when an above-average ticket has landed.
   </Tab>

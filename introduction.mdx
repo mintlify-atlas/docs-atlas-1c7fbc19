@@ -1,5 +1,5 @@
 ---
-title: "Tiket: Play the World's Simplest Fake Lottery"
+title: "Tiket: A One-Button Fake Lottery Game in Vanilla JavaScript"
 sidebarTitle: "Introduction"
 description: "Tiket is a mobile-first, one-button fake lottery game built with vanilla JavaScript. No accounts, no real money — just tap and play."
 ---
@@ -13,28 +13,28 @@ Every time you tap **Try Your Luck**, Tiket generates a weighted random prize be
 ## Key Features
 
 <CardGroup cols={2}>
-  <Card title="One-Button Gameplay" icon="hand-pointer">
+  <Card title="One-Button Gameplay" icon="hand-pointer" href="playing/getting-started">
     A single "Try Your Luck" button drives the entire game. Tap it once and instantly receive a prize — no menus, no forms, no friction.
   </Card>
-  <Card title="Weighted Prize Generator" icon="dice">
+  <Card title="Weighted Prize Generator" icon="dice" href="internals/game-logic">
     Prizes are calculated with `Math.random() ** 5`, raising a uniform random value to the fifth power to heavily bias the distribution toward smaller wins and keep large payouts genuinely rare.
   </Card>
-  <Card title="Confetti Celebrations" icon="party-bell">
+  <Card title="Confetti Celebrations" icon="party-bell" href="playing/winning">
     Any prize worth \$300 or more triggers a full-screen confetti burst via `@hiseb/confetti`, called with `velocity: 300` and `count: 100` for a satisfying visual payoff.
   </Card>
-  <Card title="Animated Balance Tracker" icon="money-bill-wave">
+  <Card title="Animated Balance Tracker" icon="money-bill-wave" href="internals/ui-and-styling">
     Your cumulative balance is displayed in a large counter that fires a CSS `pop` animation — a brief letter-spacing burst — every time it updates, keeping the UI feeling alive.
   </Card>
-  <Card title="Dark Mode Support" icon="moon">
+  <Card title="Dark Mode Support" icon="moon" href="internals/ui-and-styling">
     The entire UI adapts automatically using the `prefers-color-scheme` CSS media query. No toggle required — the game matches your system theme out of the box.
   </Card>
-  <Card title="Reset Button" icon="arrow-rotate-left">
+  <Card title="Reset Button" icon="arrow-rotate-left" href="playing/resetting">
     A reset icon in the top navigation bar zeroes out the balance and clears the last-won display in one tap, so you can start a fresh session instantly.
   </Card>
-  <Card title="Zero Dependencies" icon="feather">
+  <Card title="Zero Dependencies" icon="feather" href="internals/deployment">
     The game is pure HTML, CSS, and vanilla JavaScript with no build step, no framework, and no bundler. The only external resource is the `@hiseb/confetti` CDN script.
   </Card>
-  <Card title="Static Site Deployment" icon="cloud">
+  <Card title="Static Site Deployment" icon="cloud" href="internals/deployment">
     Tiket is deployed as a fully static site via GitHub Pages — no server, no database, and instant global availability.
   </Card>
 </CardGroup>

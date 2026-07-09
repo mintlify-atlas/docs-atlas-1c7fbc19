@@ -38,6 +38,7 @@ Tiket is fully optimized for touch-based play. The **Try Your Luck** button is s
 - `touch-action: manipulation` — prevents the 300 ms tap delay on mobile browsers so the button responds immediately.
 - `-webkit-tap-highlight-color: transparent` — removes the default blue or grey tap flash that browsers normally render on touch targets.
 - `user-select: none` — prevents accidental text selection when rapidly tapping the button.
+- `-webkit-touch-callout: none` — suppresses the iOS callout menu (copy/paste popup) that can appear on a long-press, keeping the interaction clean on Safari.
 
 The button also responds visually to interaction: it lifts slightly on hover (`translateY(-3px)`) and presses down on tap (`scale(0.97)`), giving satisfying tactile feedback on any device.
 
