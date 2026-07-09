@@ -1,0 +1,66 @@
+---
+title: "Resetting Your Tiket Balance and Starting Over"
+sidebarTitle: "Resetting"
+description: "The reset button in Tiket clears your current balance and last prize amount, letting you start a fresh session from zero instantly."
+---
+
+When you want a fresh start, Tiket's reset button wipes the slate clean in a single tap. No menus, no settings screen — just one touch and your balance returns to zero so you can begin a brand-new session.
+
+## Using the Reset Button
+
+The reset button is the SVG circular-arrow icon rendered in the top-right corner of the header bar. Tapping it performs three actions in immediate succession:
+
+<Steps>
+  <Step title="Balance returns to zero">
+    The internal `balance` variable is set back to `0`, clearing all accumulated winnings from the current session.
+  </Step>
+  <Step title="Balance display clears">
+    The `#money` element — the large dollar figure in the center of the screen — is updated to show `0`.
+  </Step>
+  <Step title="Amount Won display clears">
+    The `#amount-won` element is also reset to `0`, removing the prize value shown from your last ticket.
+  </Step>
+</Steps>
+
+All three steps happen synchronously in the same click handler:
+
+```javascript
+resetButton.addEventListener('click', () => {
+    balance = 0;
+    money.innerHTML = 0;
+    amountWon.innerHTML = 0;
+})
+```
+
+## Reset Icon Interaction
+
+The reset icon is styled to give clear visual feedback at every stage of interaction:
+
+- **Hover** — the icon rotates a full 360° over 0.5 s (`transform: rotate(360deg)`), hinting at its "restart" purpose before you even tap.
+- **Active / pressed** — the icon scales down to 90% (`transform: scale(0.9)`) over 0.15 s for a satisfying press-down feel.
+- **Tap on mobile** — `-webkit-tap-highlight-color: transparent` suppresses the default browser tap flash, keeping the interaction clean on iOS and Android.
+
+```css
+#reset-icon:hover {
+    transform: rotate(360deg);
+    transition: all 0.5s ease;
+}
+
+#reset-icon:active {
+    transform: scale(0.9);
+    transition: all 0.15s ease;
+}
+```
+
+<Note>
+  There is no confirmation dialog — the reset is immediate. Your previous balance is not saved anywhere, so once you tap the icon your session total is gone for good.
+</Note>
+
+## When to Reset
+
+A few situations where hitting reset makes sense:
+
+- **Starting a new challenge** — set a goal (e.g., reach $10,000) and reset to measure exactly how many tickets it takes.
+- **Handing your device to someone else** — clear your session before passing your phone to a friend so they start from scratch.
+- **Testing the game** — reset between runs when experimenting with how frequently large prizes appear.
+- **A fresh feeling** — sometimes a big balance makes wins feel less exciting; resetting brings back that early tension.

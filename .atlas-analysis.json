@@ -1,0 +1,41 @@
+{
+  "projectType": "saas",
+  "projectName": "Tiket",
+  "projectDescription": "A fake lottery ticket web game where players tap a single button to win randomized fake money, with confetti celebrations for big wins.",
+  "theme": "almond",
+  "primaryColor": "#ffff94",
+  "lightColor": "#ffff94",
+  "darkColor": "#000000",
+  "navigation": {
+    "groups": [
+      {
+        "group": "Overview",
+        "pages": ["introduction", "how-it-works"]
+      },
+      {
+        "group": "Playing the Game",
+        "pages": ["playing/getting-started", "playing/winning", "playing/resetting"]
+      },
+      {
+        "group": "Under the Hood",
+        "pages": ["internals/game-logic", "internals/ui-and-styling", "internals/deployment"]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "One-button mobile-first gameplay",
+    "Weighted random prize generator (rare large wins)",
+    "Confetti celebration for prizes ≥ $300",
+    "Running balance tracker with animated pop effect",
+    "Dark mode support via CSS media query",
+    "Reset button to clear balance and start over",
+    "Zero dependencies — pure HTML, CSS, and vanilla JavaScript",
+    "Deployed as a static site via GitHub Pages"
+  ],
+  "publicApiSurface": [
+    "getRandomInt() — weighted random prize between $10 and $1000",
+    "celebrate() — triggers confetti animation via @hiseb/confetti",
+    "'Try Your Luck' button click handler — generates prize and updates balance",
+    "Reset button click handler — resets balance and amount-won to 0"
+  ]
+}

@@ -1,0 +1,46 @@
+---
+title: "Get Started with Tiket in Your Browser"
+sidebarTitle: "Getting Started"
+description: "Open Tiket on any device, tap Try Your Luck, and start accumulating fake winnings. No install, no account, no real money required."
+---
+
+Tiket is a browser-based lottery ticket game that runs entirely as a static site hosted on GitHub Pages. There is nothing to install, no account to create, and no real money involved — just open the URL and start playing instantly on any modern device.
+
+## Opening the Game
+
+<Steps>
+  <Step title="Navigate to the game">
+    Open [https://mr-sunset.github.io/tiket](https://mr-sunset.github.io/tiket) in any modern browser, whether you're on a desktop, tablet, or smartphone.
+  </Step>
+  <Step title="The game loads instantly">
+    Tiket requires no sign-in, no permissions, and no additional downloads. The page is ready to play the moment it finishes loading.
+  </Step>
+  <Step title="Play your first ticket">
+    Tap the **Try Your Luck** button to scratch your first ticket. A prize amount is awarded immediately and your balance updates on-screen.
+  </Step>
+  <Step title="Watch your totals grow">
+    Your running **Balance** and the **Amount Won** on your most recent ticket are both displayed in the center of the screen, updating after every tap.
+  </Step>
+</Steps>
+
+## The Interface
+
+Tiket's UI is intentionally minimal — three distinct areas make up the entire screen:
+
+- **Header bar** — A black (or yellow in dark mode) strip across the top containing the "Tiket" title styled in yellow, an SVG circular-arrow reset icon on the right, and a small "💛 JC" credit beside it.
+- **Center area** — The main stage of the game. A large dollar-prefixed number shows your cumulative **Balance**, and directly below it the **Amount Won** label displays the prize from your last ticket.
+- **Try Your Luck button** — A large, rounded button centered below the balance display. Tapping it is the only action required to play.
+
+## Mobile Experience
+
+Tiket is fully optimized for touch-based play. The **Try Your Luck** button is styled with several CSS properties that make it feel native on iOS and Android:
+
+- `touch-action: manipulation` — prevents the 300 ms tap delay on mobile browsers so the button responds immediately.
+- `-webkit-tap-highlight-color: transparent` — removes the default blue or grey tap flash that browsers normally render on touch targets.
+- `user-select: none` — prevents accidental text selection when rapidly tapping the button.
+
+The button also responds visually to interaction: it lifts slightly on hover (`translateY(-3px)`) and presses down on tap (`scale(0.97)`), giving satisfying tactile feedback on any device.
+
+<Info>
+  Tiket supports dark mode automatically. It adapts its colour scheme — background, header, button, and balance text — based on your device's system preference via a `prefers-color-scheme: dark` media query. No manual toggle needed.
+</Info>

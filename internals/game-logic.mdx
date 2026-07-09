@@ -1,0 +1,96 @@
+---
+title: "Tiket Game Logic: JavaScript Source Walkthrough"
+sidebarTitle: "Game Logic"
+description: "A complete walkthrough of Tiket's script.js: the weighted prize generator, confetti trigger, balance accumulation, and reset handler."
+---
+
+Tiket's entire game logic lives in a single ~40-line `script.js` file. This page walks through every function and event listener, from the DOM setup at startup to the click handlers that drive each ticket pull.
+
+## Entry Point
+
+The script wraps everything in a `DOMContentLoaded` listener to guarantee that DOM elements exist before any code tries to reference them. Inside that callback, four element references are captured and a `balance` variable is initialized to `0`:
+
+```javascript
+let money = document.getElementById('money');
+let amountWon = document.getElementById('amount-won');
+const getTicket = document.getElementById('try-luck');
+const resetButton = document.getElementById('reset-icon');
+```
+
+`money` and `amountWon` are reassigned on every ticket pull, so they are declared with `let`. `getTicket` and `resetButton` only ever need one reference, so they use `const`.
+
+## getRandomInt()
+
+This function is responsible for picking the dollar amount a player wins on each ticket pull:
+
+```javascript
+function getRandomInt() {
+    const weightedRandom = Math.random() ** 5;
+    return Math.floor(weightedRandom * (1000 - 10 + 1)) + 10;
+}
+```
+
+`Math.random()` produces a uniform float in [0, 1). Raising it to the 5th power (`** 5`) transforms this into a right-skewed distribution — values near 0 are far more likely than values near 1, which means small prizes are common and large prizes are rare. Multiplying by 991 and adding 10 maps the range to [10, 1001), and `Math.floor` produces integer prizes in the range **$10 – $1000**.
+
+## celebrate()
+
+When a prize of $300 or more is awarded, the game calls `celebrate()` to fire confetti across the screen:
+
+```javascript
+function celebrate() {
+    confetti({
+        velocity: 300,
+        count: 100
+    });
+}
+```
+
+This is a thin wrapper around the `@hiseb/confetti` library. Isolating the call in its own function keeps the configuration in one place — the click handler simply calls `celebrate()` rather than repeating the options object inline.
+
+## Try Your Luck Click Handler
+
+The main game loop is wired to the **Try Your Luck** button and runs on every click:
+
+```javascript
+getTicket.addEventListener('click', () => {
+    let moneyWon = getRandomInt();
+
+    if (moneyWon >= 300) {
+        celebrate();
+    }
+
+    balance = (+balance) + moneyWon
+
+    money.innerHTML = balance.toLocaleString();
+    amountWon.innerHTML = moneyWon.toLocaleString();
+
+    money.classList.add('pop');
+    setTimeout(() => {
+        money.classList.remove('pop');
+    }, 200);
+});
+```
+
+A few things worth noting:
+
+- **`(+balance)`** — the unary `+` coerces `balance` to a number before addition, guarding against accidental string concatenation.
+- **`toLocaleString()`** — formats the number with locale-appropriate thousands separators (e.g., `1,250` instead of `1250`).
+- **`pop` animation** — the class is added immediately after the balance updates, then removed via `setTimeout` after 200 ms. This triggers the CSS `@keyframes pop` animation exactly once per click, giving the balance display a satisfying visual pulse.
+
+## Reset Handler
+
+The reset icon in the header zeroes out all state and display values:
+
+```javascript
+resetButton.addEventListener('click', () => {
+    balance = 0;
+    money.innerHTML = 0;
+    amountWon.innerHTML = 0;
+})
+```
+
+Setting `balance` back to `0` is enough to reset the game — the next click will start accumulating from scratch.
+
+<Tip>
+  The entire game state is a single integer (`balance`) held in memory. There is no `localStorage`, no server, and no persistence between page reloads — refreshing the page always starts the balance at $0.
+</Tip>

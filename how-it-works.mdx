@@ -1,0 +1,121 @@
+---
+title: "How Tiket Works: Prize Logic and Game Flow"
+sidebarTitle: "How It Works"
+description: "A walkthrough of Tiket's weighted random prize system, balance accumulation, confetti threshold, and reset mechanic — all in ~40 lines of JS."
+---
+
+Tiket's entire game loop lives in roughly 40 lines of vanilla JavaScript. This page walks through each piece of that logic — how a random prize is generated and weighted, when confetti fires, how the balance accumulates and animates, and what the reset button actually does under the hood.
+
+## The Game Loop
+
+Every interaction with Tiket follows the same three-step cycle. There is no game state beyond a single integer, which makes the flow easy to trace from click to screen update.
+
+<Steps>
+  <Step title="Player Taps the Button">
+    The user taps or clicks the **Try Your Luck** button. A `click` event listener attached to `#try-luck` fires and kicks off the rest of the sequence.
+  </Step>
+  <Step title="A Random Prize Is Generated">
+    `getRandomInt()` is called immediately. It produces a weighted integer between \$10 and \$1,000 — heavily skewed toward smaller values — and returns it as the prize for this ticket.
+  </Step>
+  <Step title="Balance Updates and the Result Displays">
+    The prize is added to the running `balance` variable. Both the cumulative balance (`#money`) and the per-ticket amount (`#amount-won`) are re-rendered using `toLocaleString()`. If the prize is \$300 or more, confetti fires. The balance display triggers its `pop` animation regardless of prize size.
+  </Step>
+</Steps>
+
+## Prize Generation
+
+The heart of Tiket is the `getRandomInt()` function. It does not pick a uniformly random number between \$10 and \$1,000 — instead it uses a deliberate mathematical trick to make small prizes far more likely than large ones.
+
+```javascript
+function getRandomInt() {
+    const weightedRandom = Math.random() ** 5; // Raise to the 5th power so a large win is rare
+    return Math.floor(weightedRandom * (1000 - 10 + 1)) + 10;
+}
+```
+
+`Math.random()` returns a float in the range `[0, 1)`. Raising that value to the **fifth power** compresses the distribution dramatically: most values land close to `0`, and values near `1` become exceedingly rare. For example, a raw `Math.random()` result of `0.8` becomes `0.8 ** 5 ≈ 0.33` after the exponentiation — already pulled toward the low end. A value of `0.5` collapses to `0.5 ** 5 ≈ 0.03`.
+
+The result is then scaled into the `[10, 1000]` prize range with `Math.floor(weightedRandom * 991) + 10`. In practice this means:
+
+- **\$10–\$50** prizes are very common — the majority of tickets land here.
+- **\$100–\$200** prizes are occasional but not surprising.
+- **\$500–\$1,000** prizes are genuinely rare events.
+
+<Tip>
+  Because of the weighted distribution, you'll rarely win more than ~\$100 on a single ticket. Don't be fooled by the \$1,000 ceiling — reaching it requires the raw `Math.random()` value to be extremely close to `1`.
+</Tip>
+
+## Confetti Threshold
+
+When a ticket's prize is \$300 or more, Tiket calls the `celebrate()` function before updating the display. `celebrate()` is a small wrapper that keeps the `confetti()` config in one place so it isn't duplicated across the codebase.
+
+```javascript
+function celebrate() {
+    confetti({
+        velocity: 300,
+        count: 100
+    });
+}
+```
+
+The `confetti()` call comes from `@hiseb/confetti@2.1.0`, loaded via the jsDelivr CDN as the only external script on the page. `velocity: 300` launches particles at high speed for a dramatic burst, and `count: 100` fills the screen with enough confetti to feel like a real win. The threshold check inside the click handler looks like this:
+
+```javascript
+let moneyWon = getRandomInt();
+
+if (moneyWon >= 300) {
+    celebrate();
+}
+```
+
+Confetti fires synchronously before the balance and amount-won elements are updated, so the animation and the number change land at the same moment.
+
+## Balance Accumulation
+
+The running total is stored in a plain JavaScript variable called `balance`, initialised to `0` when the page loads. On every ticket click, the prize is added and both display elements are re-rendered:
+
+```javascript
+balance = (+balance) + moneyWon;
+
+money.innerHTML = balance.toLocaleString();
+amountWon.innerHTML = moneyWon.toLocaleString();
+```
+
+`toLocaleString()` formats the numbers according to the user's locale — so a balance of `12345` renders as `12,345` in most English locales, making large balances easy to read at a glance.
+
+Immediately after the balance updates, the `#money` element receives the `pop` CSS class for 200 milliseconds:
+
+```javascript
+money.classList.add('pop');
+setTimeout(() => {
+    money.classList.remove('pop');
+}, 200);
+```
+
+The `pop` keyframe animation briefly expands the letter-spacing of the balance and shifts its colour to yellow, giving each win a tactile, reactive feel even on the largest prizes.
+
+```css
+@keyframes pop {
+    0%   { letter-spacing: 1px;  color: rgb(213, 213, 0); }
+    50%  { letter-spacing: 5px;  color: rgb(213, 213, 0); }
+    100% { letter-spacing: 1px;  color: rgb(213, 213, 0); }
+}
+
+.pop {
+    animation: pop 0.2s linear;
+}
+```
+
+## Reset
+
+The reset button is the SVG icon in the top navigation bar (`#reset-icon`). Clicking it runs three lines of cleanup:
+
+```javascript
+resetButton.addEventListener('click', () => {
+    balance = 0;
+    money.innerHTML = 0;
+    amountWon.innerHTML = 0;
+});
+```
+
+The `balance` variable is set back to `0`, and both display elements are cleared to `0` as well. No animation plays and no confirmation is asked — the reset is instant. This lets players start a fresh session without reloading the page.

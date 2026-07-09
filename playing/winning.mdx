@@ -1,0 +1,80 @@
+---
+title: "Winning in Tiket: Prizes, Odds, and Confetti"
+sidebarTitle: "Winning"
+description: "Every Tiket ticket awards between $10 and $1,000 in fake money. Prizes are weighted so big wins are rare — and $300+ triggers a confetti burst."
+---
+
+Every tap of **Try Your Luck** is guaranteed to award a prize — there are no losing tickets in Tiket. However, the distribution of prize amounts is heavily skewed, so while you will always win something, truly large payouts are quite rare by design.
+
+## Prize Range
+
+All prizes fall between **$10** and **$1,000** inclusive. The value is calculated by `getRandomInt()` in `script.js`:
+
+```javascript
+function getRandomInt() {
+    const weightedRandom = Math.random() ** 5; // Raise to the 5th power so a large win is rare
+    return Math.floor(weightedRandom * (1000 - 10 + 1)) + 10;
+}
+```
+
+`Math.random()` produces a float between 0 and 1. Raising that value to the **5th power** skews the distribution strongly toward 0 — for example, a raw value of 0.5 becomes just 0.03125 after exponentiation. This means the vast majority of tickets land in the lower end of the $10–$50 range, while prizes approaching $1,000 are extremely unlikely.
+
+## Prize Distribution
+
+<Tabs>
+  <Tab title="Common Outcomes">
+    Because the raw random number is raised to the 5th power before being scaled, the probability density is heavily concentrated near the minimum prize. In practical terms:
+
+    - **$10–$50** — the overwhelming majority of tickets fall in this band. A raw `Math.random()` value below 0.55 (which covers roughly 55% of all rolls) maps to a prize below $50 after the x⁵ weighting.
+    - **$50–$100** — noticeably less frequent, but still a common occurrence over a long session.
+    - **$100–$200** — occasional; you will see these periodically but they are not the norm.
+
+    These small wins accumulate quickly since every single ticket pays out, and the balance counter keeps a running total across the entire session.
+  </Tab>
+  <Tab title="Rare Outcomes">
+    High-value prizes require the raw random number to land close to 1 — a progressively unlikely event the higher you go:
+
+    - **$300–$499** — rare enough to feel notable; also the threshold that triggers the confetti celebration.
+    - **$500–$799** — uncommon; requires a raw roll above approximately 0.89.
+    - **$800–$999** — very rare; requires a raw roll above approximately 0.94.
+    - **$1,000** — the maximum prize; requires `Math.random()` to return exactly 1, which is vanishingly unlikely in IEEE 754 floating-point arithmetic.
+
+    The confetti animation (see below) serves as a built-in signal for when an above-average ticket has landed.
+  </Tab>
+</Tabs>
+
+## Confetti Celebration
+
+Whenever a single ticket pays out **$300 or more**, the `celebrate()` function fires immediately after the prize is calculated:
+
+```javascript
+function celebrate() {
+    confetti({
+        velocity: 300,
+        count: 100
+    });
+}
+```
+
+This launches 100 confetti particles at a velocity of 300, powered by the [`@hiseb/confetti`](https://cdn.jsdelivr.net/npm/@hiseb/confetti@2.1.0/dist/confetti.min.js) library loaded via CDN. The celebration triggers on the same click event that updates the balance, so the confetti burst and the balance animation play together.
+
+## Balance Display
+
+After every ticket, two things happen to the on-screen numbers:
+
+1. **Balance update** — the cumulative balance is recalculated with `(+balance) + moneyWon` and written back to the `#money` element using `balance.toLocaleString()`, which formats the number according to the user's locale (for example, `1,234` in en-US or `1.234` in de-DE).
+2. **Pop animation** — the balance figure briefly plays a CSS `pop` keyframe animation: letter-spacing expands and the text turns yellow, then snaps back, all within 200 ms. The class is added and then removed via `setTimeout` to allow replaying on every tap.
+
+```css
+@keyframes pop {
+    0%   { letter-spacing: 1px; color: rgb(213, 213, 0); }
+    50%  { letter-spacing: 5px; color: rgb(213, 213, 0); }
+    100% { letter-spacing: 1px; color: rgb(213, 213, 0); }
+}
+```
+
+The **Amount Won** display beneath the balance is also updated with `toLocaleString()` so both numbers always use consistent locale-aware formatting.
+
+<Tip>
+  Since the balance accumulates across all tickets in a session, keep tapping — even small wins add up quickly. There is no cost per ticket, so the only direction your balance ever moves is up.
+</Tip>

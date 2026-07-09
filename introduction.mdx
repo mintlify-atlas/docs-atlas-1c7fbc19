@@ -1,0 +1,58 @@
+---
+title: "Tiket: Play the World's Simplest Fake Lottery"
+sidebarTitle: "Introduction"
+description: "Tiket is a mobile-first, one-button fake lottery game built with vanilla JavaScript. No accounts, no real money — just tap and play."
+---
+
+Tiket is a mobile-first fake lottery game that strips gambling down to its purest, silliest form: press one button, win a random amount of fake money, and watch confetti explode across the screen when you hit a big prize. This page introduces what Tiket is, the features that make it work, and where you can try it right now.
+
+## What Is Tiket?
+
+Every time you tap **Try Your Luck**, Tiket generates a weighted random prize between \$10 and \$1,000 and adds it to your running balance. The weighting is heavily skewed toward smaller wins — big payouts are genuinely rare — so landing a \$500+ ticket feels like a real event. When a prize reaches \$300 or more, the screen erupts in confetti courtesy of the `@hiseb/confetti` library. There are no accounts, no real money, and no backend. Just one button, a counter, and a lot of fake cash.
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="One-Button Gameplay" icon="hand-pointer">
+    A single "Try Your Luck" button drives the entire game. Tap it once and instantly receive a prize — no menus, no forms, no friction.
+  </Card>
+  <Card title="Weighted Prize Generator" icon="dice">
+    Prizes are calculated with `Math.random() ** 5`, raising a uniform random value to the fifth power to heavily bias the distribution toward smaller wins and keep large payouts genuinely rare.
+  </Card>
+  <Card title="Confetti Celebrations" icon="party-bell">
+    Any prize worth \$300 or more triggers a full-screen confetti burst via `@hiseb/confetti`, called with `velocity: 300` and `count: 100` for a satisfying visual payoff.
+  </Card>
+  <Card title="Animated Balance Tracker" icon="money-bill-wave">
+    Your cumulative balance is displayed in a large counter that fires a CSS `pop` animation — a brief letter-spacing burst — every time it updates, keeping the UI feeling alive.
+  </Card>
+  <Card title="Dark Mode Support" icon="moon">
+    The entire UI adapts automatically using the `prefers-color-scheme` CSS media query. No toggle required — the game matches your system theme out of the box.
+  </Card>
+  <Card title="Reset Button" icon="arrow-rotate-left">
+    A reset icon in the top navigation bar zeroes out the balance and clears the last-won display in one tap, so you can start a fresh session instantly.
+  </Card>
+  <Card title="Zero Dependencies" icon="feather">
+    The game is pure HTML, CSS, and vanilla JavaScript with no build step, no framework, and no bundler. The only external resource is the `@hiseb/confetti` CDN script.
+  </Card>
+  <Card title="Static Site Deployment" icon="cloud">
+    Tiket is deployed as a fully static site via GitHub Pages — no server, no database, and instant global availability.
+  </Card>
+</CardGroup>
+
+## Live Demo
+
+<Note>
+  You can play Tiket right now in your browser — no installation required. Visit the live deployment at [https://mr-sunset.github.io/tiket](https://mr-sunset.github.io/tiket) and tap **Try Your Luck** to start winning fake money.
+</Note>
+
+## Tech Stack
+
+Tiket is intentionally minimal. Every layer of the stack was chosen to keep the project dependency-free and deployable anywhere that can serve static files.
+
+| Layer | Choice |
+|---|---|
+| **Markup** | Plain HTML5 with semantic elements |
+| **Styles** | Vanilla CSS — Roboto Mono font, `@keyframes` animations, `prefers-color-scheme` dark mode |
+| **Logic** | Vanilla JavaScript (ES6+), no build step |
+| **Confetti** | [`@hiseb/confetti@2.1.0`](https://cdn.jsdelivr.net/npm/@hiseb/confetti@2.1.0/dist/confetti.min.js) loaded from jsDelivr CDN |
+| **Hosting** | GitHub Pages (static) |

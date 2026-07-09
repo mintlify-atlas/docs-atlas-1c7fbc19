@@ -1,0 +1,104 @@
+---
+title: "Tiket UI Design: CSS Animations and Dark Mode"
+sidebarTitle: "UI & Styling"
+description: "How Tiket's CSS implements the pop animation, dark mode via prefers-color-scheme, touch optimizations, and the black-and-yellow color palette."
+---
+
+Tiket's visual style is built entirely in a single `style.css` file — no frameworks, just ~180 lines of handcrafted CSS. This page covers the color palette, animations, interactive states, touch handling, and overall page layout.
+
+## Color Palette
+
+The design uses a stark black-and-yellow scheme that holds up in both light and dark environments.
+
+In **light mode**, the header (`#top-nav`) is solid black (`#000000`) against a white body background. The title text and the Try Your Luck button use a warm yellow — `rgb(255, 255, 148)` (`#ffff94`) — which pops against the dark header and creates a strong focal point.
+
+In **dark mode**, the palette inverts: the header flips to yellow, the body background deepens to near-black (`rgb(20, 20, 20)`), and the button becomes yellow with black text so it remains legible:
+
+```css
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: rgb(20, 20, 20);
+        color: white;
+    }
+
+    #top-nav {
+        background-color: rgb(255, 255, 148)
+    }
+
+    #top-nav h1,
+    #top-nav p {
+        color: black;
+    }
+
+    #try-luck {
+        background-color: rgb(255, 255, 148);
+        color: black;
+    }
+}
+```
+
+No JavaScript is involved — the switch is handled entirely by the `prefers-color-scheme` media query, so it respects the user's OS-level preference automatically.
+
+## The Pop Animation
+
+Each time the balance updates, the JavaScript adds a `pop` CSS class to the money element for 200 ms. The animation expands the letter-spacing outward then snaps it back, producing a punchy visual pulse on the balance display:
+
+```css
+@keyframes pop {
+    0%   { letter-spacing: 1px;  color: rgb(213, 213, 0); }
+    50%  { letter-spacing: 5px;  color: rgb(213, 213, 0); }
+    100% { letter-spacing: 1px;  color: rgb(213, 213, 0); }
+}
+
+.pop {
+    animation: pop 0.2s linear;
+}
+```
+
+The letter-spacing expands then contracts over 200 ms, giving a punchy visual pulse. The colour shifts to a deeper yellow (`rgb(213, 213, 0)`) during the animation so the number momentarily looks highlighted before returning to its default style.
+
+## Button Interactions
+
+The Try Your Luck button has distinct hover and active states that provide satisfying tactile feedback without any JavaScript:
+
+```css
+#try-luck:hover  { transform: translateY(-3px); }
+#try-luck:active { transform: scale(0.97); }
+```
+
+Hovering lifts the button 3 px upward, suggesting it is pressable. Clicking scales it down to 97% — a subtle physical press effect. Both transitions are governed by a `transition: all 0.14s ease` rule on the base `#try-luck` selector for smooth interpolation.
+
+## Reset Icon Interactions
+
+The reset SVG in the header has its own two-state interaction model:
+
+```css
+#reset-icon:hover  { transform: rotate(360deg); transition: all 0.5s ease; }
+#reset-icon:active { transform: scale(0.9);     transition: all 0.15s ease; }
+```
+
+On hover, the icon completes a full 360° rotation over 500 ms — a clear visual cue that it is a reset control. On click, it briefly shrinks to 90% scale with a much faster 150 ms transition to mimic a physical button press.
+
+## Touch Optimizations
+
+Several CSS properties on the button and reset icon are included specifically for mobile browsers:
+
+```css
+touch-action: manipulation;
+user-select: none;
+-webkit-tap-highlight-color: transparent;
+-webkit-touch-callout: none;
+```
+
+- **`touch-action: manipulation`** — disables the browser's 300 ms tap delay on iOS and Android, making the button feel instant.
+- **`-webkit-tap-highlight-color: transparent`** — suppresses the blue tap flash that Safari and some Android browsers overlay on tappable elements.
+- **`user-select: none`** — prevents accidental text selection when a player taps rapidly.
+- **`-webkit-touch-callout: none`** — disables the long-press popup (copy/open link) on iOS.
+
+## Layout
+
+The body uses `display: flex; flex-direction: column; min-height: 80vh` to create a vertical stack. The `<main>` element is set to `flex: 1`, which causes it to expand and fill all remaining vertical space below the header. Inside `<main>`, a second `display: flex; flex-direction: column; justify-content: center; align-items: center` centers the balance display and button both vertically and horizontally within that region.
+
+<Note>
+  The font is Roboto Mono, declared as `font-family: "Roboto Mono", monospace` in the body rule. It falls back to the system monospace font if Roboto Mono is not available, giving the game a clean terminal feel on any device.
+</Note>

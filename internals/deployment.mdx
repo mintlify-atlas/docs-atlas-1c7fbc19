@@ -1,0 +1,97 @@
+---
+title: "Deploying Tiket to GitHub Pages"
+sidebarTitle: "Deployment"
+description: "Tiket deploys automatically to GitHub Pages via a GitHub Actions workflow that triggers on every push to the main branch."
+---
+
+Tiket is a zero-build static site — the repository files are served directly by GitHub Pages via a GitHub Actions workflow. There is no compilation step, no dependency installation, and no build artefacts to manage.
+
+## GitHub Actions Workflow
+
+The entire deployment pipeline lives in `.github/workflows/static.yml`. It triggers automatically on every push to `main`, and can also be run manually from the Actions tab via `workflow_dispatch`:
+
+```yaml
+name: Deploy static content to Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
+```
+
+Here is what each step does:
+
+- **Checkout** (`actions/checkout@v4`) — clones the repository onto the runner so the files are available to subsequent steps.
+- **Setup Pages** (`actions/configure-pages@v5`) — configures the GitHub Pages environment and validates that Pages is enabled for the repository.
+- **Upload artifact** (`actions/upload-pages-artifact@v3`) — packages the repository root (`path: '.'`) as a Pages artifact and uploads it. Because the path is `.`, every file in the repo is included.
+- **Deploy to GitHub Pages** (`actions/deploy-pages@v5`) — takes the uploaded artifact and publishes it. The step's `id: deployment` exposes the live URL through `steps.deployment.outputs.page_url`, which is surfaced as the environment URL in the Actions UI.
+
+The `concurrency` block ensures only one deployment runs at a time and that in-progress production deployments are never cancelled — new runs queue behind any active deploy rather than interrupting it.
+
+## No Build Step
+
+Because Tiket is pure HTML, CSS, and JavaScript with no bundler, transpiler, or package manager involved, the entire repository root is uploaded as-is as the Pages artifact. There is no `npm install`, no Webpack config, no compilation — what you see in the repository is exactly what the browser receives.
+
+## CDN Dependency
+
+The only runtime dependency is `@hiseb/confetti`, loaded directly from jsDelivr in `index.html`:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/@hiseb/confetti@2.1.0/dist/confetti.min.js"></script>
+```
+
+This script is fetched by the **browser at runtime**, not by the GitHub Actions runner at build time. It never touches the repository or the artifact — the workflow has nothing to install or vendor.
+
+## Forking and Self-Hosting
+
+Deploying your own copy of Tiket takes only a few minutes:
+
+<Steps>
+  <Step title="Fork the repository">
+    Open the Tiket repository on GitHub and click **Fork** to create a copy under your own account.
+  </Step>
+  <Step title="Enable GitHub Pages">
+    In your fork, go to **Settings → Pages**.
+  </Step>
+  <Step title="Set the source to GitHub Actions">
+    Under the **Source** dropdown, select **GitHub Actions** instead of a branch.
+  </Step>
+  <Step title="Trigger the workflow">
+    Push any change to the `main` branch (even a whitespace edit to `README.md` is enough) to kick off the first deployment.
+  </Step>
+  <Step title="Find your live URL">
+    Once the workflow completes, the public URL appears in the **Actions** tab under the deploy job, and also in **Settings → Pages**.
+  </Step>
+</Steps>
+
+<Tip>
+  Cache-busted asset URLs (`style.css?v=3`, `script.js?v=3`) are appended in `index.html` to force browsers to reload updated files after a new deployment, bypassing any cached older versions.
+</Tip>
